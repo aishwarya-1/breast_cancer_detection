@@ -11,6 +11,15 @@ import pandas as pd
 from numpy import log2
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
+import numpy as np 
+import matplotlib.pyplot as plt
+import seaborn as sns
+from collections import Counter
+import math
+from sklearn.model_selection import KFold
+import statistics
+import itertools
+
 
 class DecisionTreeClassifier:
 
@@ -119,8 +128,8 @@ class DecisionTreeClassifier:
 
 
     def _predict_query(self,query, tree, default):
-        for key in list(query.keys()):
-            if key in list(tree.keys()):
+        for key in query:
+            if key in tree:
                 try:
                     result = tree[key][query[key]] 
                 except:
@@ -128,7 +137,7 @@ class DecisionTreeClassifier:
                 
                 result = tree[key][query[key]]
                 
-                if isinstance(result,dict):
+                if type(result) == dict:
                     return self._predict_query(query,result,default)
                 else:
                     return result
@@ -150,3 +159,86 @@ class DecisionTreeClassifier:
 
     def get_decision_tree(self):
         return self._tree
+
+
+
+class KNN():
+    def __init__(self, traindata=0, trainclass=0, testdata=0, testclass=0, optimal_k=7):
+
+        self.X_train = traindata
+        self.y_train = trainclass
+        self.X_test = testdata
+        self.y_test = testclass
+        self.precision = 0
+        self.recall = 0
+        self.specificity = 0
+        self.y_pred = []
+        self.acc = 0
+        
+        self.k = optimal_k
+        
+    def compute_confusion_mat(self):
+        tp = 0
+        tn = 0
+        fp = 0
+        fn = 0
+        for i in range(len(self.y_test)):
+            if(self.y_test[i]==self.y_pred):
+                if(self.y_test[i]==2):
+                    tp += 1
+                else:
+                    tn += 1
+            else:
+                if(self.y_test[i]==2):
+                    fp += 1
+                else:
+                    fn += 1
+        
+        return [tp, fp, tn, fn]
+    
+    def params(self):
+        l = compute_confusion_mat()
+        self.precision = l[0]/(l[0]+l[1])
+        self.recall = l[0]/(l[0]+l[3])
+        self.specificity = (l[2]) / (l[2] + l[1])
+        
+        
+    def accuracy(self):
+        correct = 0
+        for i in range(len(self.y_test)):
+            if(self.y_test[i]==self.y_pred[i]):
+                correct = correct + 1
+        return (correct/len(self.y_test))*100
+    
+    def euclidean_distance(self, point1, point2):
+        sum_squared_distance = 0
+        for i in range(len(point1)):
+            sum_squared_distance += math.pow(point1[i] - point2[i], 2)
+        return math.sqrt(sum_squared_distance)  
+    
+    def mode(self, labels):
+        return Counter(labels).most_common(1)[0][0]
+    
+    def knn(self, query):
+        neighbor_distances_and_indices = []
+
+        for index, example in enumerate(self.X_train):
+            distance = self.euclidean_distance(example, query)
+            neighbor_distances_and_indices.append((distance, index))
+
+        sorted_neighbor_distances_and_indices = sorted(neighbor_distances_and_indices)
+
+        k_nearest_distances_and_indices = sorted_neighbor_distances_and_indices[:self.k]
+
+        k_nearest_labels = [self.y_train[i] for distance, i in k_nearest_distances_and_indices]
+
+        return self.mode(k_nearest_labels) 
+    
+    def knn_classifier(self):
+        for i in self.X_test:
+            clf_prediction = self.knn(i)
+            self.y_pred.append(clf_prediction)
+            
+        self.acc = self.accuracy()
+
+        return self.acc
