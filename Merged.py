@@ -510,7 +510,57 @@ class SVM():
         plt.plot(xx, yy, 'k--')
         plt.show()
 
+# KNN + DT
+df  = pd.read_csv("cleaned_dataset.csv")
+data = df.drop(["id","class"],axis=1)
+target = df["class"]
+X_train, X_test, y_train, y_test = train_test_split(data,target, train_size = 0.3, random_state=42)
 
+# DT
+model_dt = DecisionTreeClassifier()
+model_dt.fit(X_train, y_train)
+y_pred_dt = model_dt.predict(X_test)
+print("The accuracy of Decision Tree Classifier:",accuracy_score(y_test,y_pred_dt))
+
+# KNN
+knnobj = KNN(X_train.values.tolist(), y_train.values.tolist(), X_test.values.tolist(), y_test.values.tolist())
+print("The accuracy of KNN classifier is ",knnobj.knn_classifier())
+
+kf = KFold(n_splits=6,shuffle=True)
+kf.get_n_splits(data)
+
+
+accuracy_all = {
+    'Decision_Tree':[],
+    'k-NN': [],
+    # 'SVM':[]
+}
+for train_index, test_index in kf.split(data):
+    X_train, X_test = data.iloc[train_index], data.iloc[test_index]
+    y_train, y_test = target.iloc[train_index], target.iloc[test_index]
+
+    model_dt = DecisionTreeClassifier()
+    model_dt.fit(X_train, y_train)
+    y_pred_dt = model_dt.predict(X_test)
+    y_acc_dt = accuracy_score(y_test,y_pred_dt)
+    accuracy_all['Decision_Tree'].append(y_acc_dt*100)
+
+    # model_knn
+    knnobj = KNN(X_train.values.tolist(), y_train.values.tolist(), X_test.values.tolist(), y_test.values.tolist())
+    y_acc_knn = knnobj.knn_classifier()
+    y_pred_knn = knnobj.y_pred
+    accuracy_all['k-NN'].append(y_acc_knn)
+
+    # model_svm = 
+    # model_svm.fit(X_train, y_train)
+    # y_pred_svm = model_svm.predict(X_test)
+    # y_acc_svm = accuracy_score(y_test,y_pred_svm)
+    # accuracy_all['SVM'].append(y_acc_svm)
+
+# Plot
+df_temp = pd.DataFrame(accuracy_all)
+df_temp = df_temp.reset_index()
+df_temp.plot(x='index', y=['Decision_Tree','k-NN'])
 
 # SVM 
 dpsdf1 = pd.read_csv("cleaned_dataset.csv")
@@ -537,12 +587,12 @@ if(flag == 0):
 dpsdata_train, dpsdata_test, dpsclass_train, dpsclass_test = train_test_split(npdpsdf1data, npdpsdf1class, test_size= .4,random_state=0)
 svmobj = SVM()
 weights = svmobj.train(dpsdata_train, dpsclass_train, epochs=50)
-weights
+print(weights)
 
 predicted = svmobj.predict(dpsdata_test, weights)
 
-accuracy = svmobj.accuracy(dpsclass_test, predicted)
-accuracy
+svmaccuracy = svmobj.accuracy(dpsclass_test, predicted)
+print(svmaccuracy)
 
 svmobj.computeconfusionmat(predicted, dpsclass_test)
 
