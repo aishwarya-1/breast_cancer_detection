@@ -119,8 +119,8 @@ class DecisionTreeClassifier:
 
 
     def _predict_query(self,query, tree, default):
-        for key in list(query.keys()):
-            if key in list(tree.keys()):
+        for key in query:
+            if key in tree:
                 try:
                     result = tree[key][query[key]] 
                 except:
@@ -128,7 +128,7 @@ class DecisionTreeClassifier:
                 
                 result = tree[key][query[key]]
                 
-                if isinstance(result,dict):
+                if type(result) == key:
                     return self._predict_query(query,result,default)
                 else:
                     return result
