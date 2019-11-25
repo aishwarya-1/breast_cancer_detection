@@ -128,7 +128,7 @@ class DecisionTreeClassifier:
                 
                 result = tree[key][query[key]]
                 
-                if type(result) == key:
+                if type(result) == dict:
                     return self._predict_query(query,result,default)
                 else:
                     return result
