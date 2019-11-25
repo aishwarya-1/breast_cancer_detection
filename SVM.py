@@ -1,40 +1,9 @@
-# %%
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 from sklearn.decomposition import PCA
 from sklearn.model_selection import KFold, cross_validate, cross_val_score, train_test_split
 
-# %%
-dpsdf1 = pd.read_csv("cleaned_dataset.csv")
-dpsdf1 = dpsdf1.drop("id",1)
-dpsdf1data = dpsdf1[dpsdf1.columns[:-1]]
-dpsdf1class = dpsdf1[dpsdf1.columns[-1]]
-
-# %%
-pca = PCA(n_components=2, whiten=True).fit(dpsdf1data)
-dpsdf1data = pca.transform(dpsdf1data)
-print('Preserved Variance: ', sum(pca.explained_variance_ratio_))
-
-# %%
-npdpsdf1data = np.array(dpsdf1data)
-adddatabias = np.zeros((int(npdpsdf1data.shape[0]),1))
-adddatabias.fill(-1)
-npdpsdf1data = (np.append(npdpsdf1data, adddatabias, axis=1))
-npdpsdf1class = np.array(dpsdf1class)
-flag = 0
-
-# %%
-if(flag == 0):
-    npdpsdf1class[npdpsdf1class < 3] = -1
-    npdpsdf1class[npdpsdf1class > 3] = 1
-    flag = 1
-# print(npdpsdf1class)
-
-# %%
-dpsdata_train, dpsdata_test, dpsclass_train, dpsclass_test = train_test_split(npdpsdf1data, npdpsdf1class, test_size= .4,random_state=0)
-
-# %%
 class SVM():
     def __init__(self, dpstraindata=0, dpstrainclass=0, dpstestdata=0, dpstestclass=0, weights=0, confusion=2, learning_rate=1, predicted=0, parameters=0, entiredata=0, entireclass=0):
         self.confusionmat = [[0 for x in range(confusion)] for y in range(confusion)]
@@ -290,29 +259,44 @@ class SVM():
         plt.plot(xx, yy, 'k--')
         plt.show()
 
-# %%
-svmobj = SVM()
-weights = svmobj.train(dpsdata_train, dpsclass_train, epochs=50)
-weights
 
-# %%
-predicted = svmobj.predict(dpsdata_test, weights)
-# predicted
+# dpsdf1 = pd.read_csv("cleaned_dataset.csv")
+# dpsdf1 = dpsdf1.drop("id",1)
+# dpsdf1data = dpsdf1[dpsdf1.columns[:-1]]
+# dpsdf1class = dpsdf1[dpsdf1.columns[-1]]
 
-# %%
-accuracy = svmobj.accuracy(dpsclass_test, predicted)
-accuracy
+# pca = PCA(n_components=2, whiten=True).fit(dpsdf1data)
+# dpsdf1data = pca.transform(dpsdf1data)
+# print('Preserved Variance: ', sum(pca.explained_variance_ratio_))
 
-# %%
-svmobj.computeconfusionmat(predicted, dpsclass_test)
+# npdpsdf1data = np.array(dpsdf1data)
+# adddatabias = np.zeros((int(npdpsdf1data.shape[0]),1))
+# adddatabias.fill(-1)
+# npdpsdf1data = (np.append(npdpsdf1data, adddatabias, axis=1))
+# npdpsdf1class = np.array(dpsdf1class)
+# flag = 0
 
-# %%
-svmobj.printparams()
+# if(flag == 0):
+#     npdpsdf1class[npdpsdf1class < 3] = -1
+#     npdpsdf1class[npdpsdf1class > 3] = 1
+#     flag = 1
 
-# %%
-svmobj.KFOLDaccuracy(2, npdpsdf1data, npdpsdf1class)
+# dpsdata_train, dpsdata_test, dpsclass_train, dpsclass_test = train_test_split(npdpsdf1data, npdpsdf1class, test_size= .4,random_state=0)
 
-# %%
-svmobj.plothyperplane(dpsdata_test, dpsclass_test, weights=weights)
+# svmobj = SVM()
+# weights = svmobj.train(dpsdata_train, dpsclass_train, epochs=50)
+# weights
 
-# %%
+# predicted = svmobj.predict(dpsdata_test, weights)
+
+# accuracy = svmobj.accuracy(dpsclass_test, predicted)
+# accuracy
+
+# svmobj.computeconfusionmat(predicted, dpsclass_test)
+
+# svmobj.printparams()
+
+# svmobj.KFOLDaccuracy(2, npdpsdf1data, npdpsdf1class)
+
+# svmobj.plothyperplane(dpsdata_test, dpsclass_test, weights=weights)
+
