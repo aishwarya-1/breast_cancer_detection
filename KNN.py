@@ -15,7 +15,7 @@ import statistics
 import itertools
 
 class KNN():
-    def __init__(self, traindata=0, trainclass=0, testdata=0, testclass=0, optimal_k=7):
+    def __init__(self, traindata=0, trainclass=0, testdata=0, testclass=0, optimal_k=5):
 
         self.X_train = traindata
         self.y_train = trainclass
@@ -28,6 +28,28 @@ class KNN():
         self.acc = 0
         
         self.k = optimal_k
+        
+        # Find the min and max values for each column
+    def dataset_minmax(self, dataset):
+        minmax = list()
+        for i in range(len(dataset[0])):
+            col_values = [row[i] for row in dataset]
+            value_min = min(col_values)
+            value_max = max(col_values)
+            minmax.append([value_min, value_max])
+        return minmax
+
+    # Rescale dataset columns to the range 0-1
+    def normalize_dataset(self):
+        minmax = self.dataset_minmax(self.X_train)
+        for row in self.X_train:
+            for i in range(len(row)):
+                row[i] = (row[i] - minmax[i][0]) / (minmax[i][1] - minmax[i][0])
+                
+        minmax = self.dataset_minmax(self.X_test)                
+        for row in self.X_test:
+            for i in range(len(row)):
+                row[i] = (row[i] - minmax[i][0]) / (minmax[i][1] - minmax[i][0])
         
     def compute_confusion_mat(self):
         tp = 0
@@ -87,6 +109,7 @@ class KNN():
         return self.mode(k_nearest_labels) 
     
     def knn_classifier(self):
+        self.normalize_dataset()
         for i in self.X_test:
             clf_prediction = self.knn(i)
             self.y_pred.append(clf_prediction)
